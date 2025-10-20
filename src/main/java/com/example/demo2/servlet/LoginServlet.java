@@ -24,7 +24,6 @@ public class LoginServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
-        // Check if user is already logged in
         HttpSession session = request.getSession(false);
         if (session != null && session.getAttribute("user") != null) {
             UserDTO user = (UserDTO) session.getAttribute("user");
@@ -32,7 +31,6 @@ public class LoginServlet extends HttpServlet {
             return;
         }
         
-        // Forward to login page
         request.getRequestDispatcher("/WEB-INF/views/login.jsp").forward(request, response);
     }
     
@@ -43,8 +41,7 @@ public class LoginServlet extends HttpServlet {
         String email = request.getParameter("email");
         String password = request.getParameter("password");
         
-        // Validate input
-        if (email == null || email.trim().isEmpty() || 
+        if (email == null || email.trim().isEmpty() ||
             password == null || password.trim().isEmpty()) {
             request.setAttribute("error", "Email and password are required");
             request.getRequestDispatcher("/WEB-INF/views/login.jsp").forward(request, response);
@@ -62,7 +59,6 @@ public class LoginServlet extends HttpServlet {
                 return;
             }
             
-            // Create session
             HttpSession session = request.getSession(true);
             session.setAttribute("user", user);
             session.setAttribute("userId", user.getId());

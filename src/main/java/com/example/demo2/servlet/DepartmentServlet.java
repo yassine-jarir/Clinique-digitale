@@ -86,12 +86,10 @@ public class DepartmentServlet extends HttpServlet {
 
                 String idStr = request.getParameter("id");
                 if (idStr != null && !idStr.isEmpty()) {
-                    // Update
                     UUID id = UUID.fromString(idStr);
                     departmentService.updateDepartment(id, departmentDTO);
                     request.getSession().setAttribute("success", "Department updated successfully!");
                 } else {
-                    // Create
                     departmentService.createDepartment(departmentDTO);
                     request.getSession().setAttribute("success", "Department created successfully!");
                 }

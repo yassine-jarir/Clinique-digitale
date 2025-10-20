@@ -137,4 +137,16 @@ public class DoctorRepository {
             em.close();
         }
     }
+
+    public long countBySpecialtyId(UUID specialtyId) {
+        EntityManager em = JPAUtil.getEntityManager();
+        try {
+            Long count = em.createQuery("SELECT COUNT(d) FROM Doctor d WHERE d.specialite.id = :specialtyId AND d.actif = true", Long.class)
+                    .setParameter("specialtyId", specialtyId)
+                    .getSingleResult();
+            return count != null ? count : 0L;
+        } finally {
+            em.close();
+        }
+    }
 }

@@ -14,7 +14,7 @@ public class DoctorDashboardServlet extends HttpServlet {
     private final DoctorRepository doctorRepository = new DoctorRepository();
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        UserDTO user = (UserDTO) req.getSession().getAttribute("doctor");
+        UserDTO user = (UserDTO) req.getSession().getAttribute("user");
         if (user == null || user.getRole() != com.example.demo2.enums.UserRole.DOCTOR) {
             resp.sendRedirect(req.getContextPath() + "/login");
             return;

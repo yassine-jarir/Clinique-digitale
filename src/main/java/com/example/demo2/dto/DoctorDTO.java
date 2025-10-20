@@ -1,5 +1,6 @@
 package com.example.demo2.dto;
 
+import java.util.List;
 import java.util.UUID;
 
 public class DoctorDTO {
@@ -11,9 +12,11 @@ public class DoctorDTO {
     private UUID specialiteId;
     private String specialiteNom;
     private boolean actif;
+    private List<AvailabilityDTO> disponibilites;
 
     // Constructors
     public DoctorDTO() {
+
     }
 
     // Getters and Setters
@@ -80,5 +83,12 @@ public class DoctorDTO {
     public void setActif(boolean actif) {
         this.actif = actif;
     }
-}
 
+    public List<AvailabilityDTO> getDisponibilites() {
+        return disponibilites;
+    }
+
+    public void setDisponibilites(List<AvailabilityDTO> disponibilites) {
+        this.disponibilites = disponibilites;
+    }
+}

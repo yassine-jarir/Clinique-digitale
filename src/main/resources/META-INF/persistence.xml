@@ -27,15 +27,17 @@
 
             <!-- Hibernate Properties -->
             <property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQLDialect"/>
-            <property name="hibernate.show_sql" value="true"/>
+            <property name="hibernate.show_sql" value="false"/>
             <property name="hibernate.format_sql" value="true"/>
             <property name="hibernate.hbm2ddl.auto" value="update"/>
 
-            <!-- Connection Pool (HikariCP) -->
-<!--            <property name="hibernate.connection.provider_class" value="org.hibernate.hikaricp.internal.HikariCPConnectionProvider"/>-->
-            <property name="hibernate.hikari.minimumIdle" value="5"/>
-            <property name="hibernate.hikari.maximumPoolSize" value="20"/>
-            <property name="hibernate.hikari.idleTimeout" value="300000"/>
+            <!-- Agroal Connection Pool (Default in Hibernate 6) -->
+            <property name="hibernate.agroal.maxSize" value="10"/>
+            <property name="hibernate.agroal.minSize" value="3"/>
+            <property name="hibernate.agroal.acquisitionTimeout" value="PT20S"/>
+            <property name="hibernate.agroal.reapTimeout" value="PT5M"/>
+            <property name="hibernate.agroal.maxLifetime" value="PT20M"/>
+            <property name="hibernate.agroal.leakTimeout" value="PT1M"/>
         </properties>
     </persistence-unit>
 </persistence>

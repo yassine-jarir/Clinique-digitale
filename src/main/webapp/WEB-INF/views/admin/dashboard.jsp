@@ -610,17 +610,13 @@
     </div>
 
     <script>
-        // Dynamic content loading function
         function loadContent(page) {
             const mainContent = document.getElementById('main-content');
 
-            // Add loading state
             mainContent.style.opacity = '0.5';
 
-            // Update active menu item
             setActiveMenuItem(page);
 
-            // For specialties and departments, we need to fetch data and render content
             if (page === 'specialties') {
                 loadSpecialtiesContent(mainContent);
                 return;
@@ -631,7 +627,6 @@
                 return;
             }
 
-            // Map page names to content-only JSP paths
             const pageMap = {
                 'dashboard': '${pageContext.request.contextPath}/admin/dashboard?content=dashboard',
                 'accounts': '${pageContext.request.contextPath}/admin/accounts?content=accounts',
@@ -653,7 +648,6 @@
                     return response.text();
                 })
                 .then(html => {
-                    // Extract only the content part (not the full page)
                     const parser = new DOMParser();
                     const doc = parser.parseFromString(html, 'text/html');
                     const content = doc.querySelector('#dynamic-content');
@@ -664,7 +658,6 @@
                         mainContent.innerHTML = html;
                     }
 
-                    // Execute scripts in the loaded content
                     const scripts = mainContent.querySelectorAll('script');
                     scripts.forEach(oldScript => {
                         const newScript = document.createElement('script');
@@ -725,14 +718,12 @@
                 });
         }
 
-        // Load departments content with AJAX
         function loadDepartmentsContent(mainContent) {
             fetch('${pageContext.request.contextPath}/admin/departments?content=departments')
                 .then(response => response.text())
                 .then(html => {
                     mainContent.innerHTML = html;
 
-                    // Execute scripts in the loaded content
                     const scripts = mainContent.querySelectorAll('script');
                     scripts.forEach(oldScript => {
                         const newScript = document.createElement('script');
@@ -753,7 +744,6 @@
                 });
         }
 
-        // Attach event listeners to dynamically loaded content
         function attachDynamicEventListeners() {
             // Filter buttons
             document.querySelectorAll('.filter-btn').forEach(btn => {
@@ -763,17 +753,14 @@
                 });
             });
 
-            // Any other dynamic content event listeners
         }
 
-        // Handle browser back/forward buttons
         window.addEventListener('popstate', function(e) {
             if (e.state && e.state.page) {
                 loadContent(e.state.page);
             }
         });
 
-        // Load initial page based on URL hash
         window.addEventListener('DOMContentLoaded', function() {
             const hash = window.location.hash.substring(1);
             if (hash) {
@@ -783,11 +770,9 @@
                 history.replaceState({page: 'dashboard'}, '', '#dashboard');
             }
 
-            // Initial event listeners
             attachDynamicEventListeners();
         });
 
-        // Mobile menu toggle
         if (window.innerWidth <= 768) {
             document.querySelector('.toggle-btn').addEventListener('click', function() {
                 document.getElementById('sidebar').classList.toggle('active');

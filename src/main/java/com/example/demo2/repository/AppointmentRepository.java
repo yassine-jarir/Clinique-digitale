@@ -65,40 +65,6 @@ public class AppointmentRepository {
         }
     }
 
-    public List<Appointment> findByDoctorId(UUID doctorId) {
-        EntityManager em = JPAUtil.getEntityManager();
-        try {
-            return em.createQuery("SELECT a FROM Appointment a WHERE a.doctor.id = :doctorId ORDER BY a.dateRdv DESC, a.heure DESC", Appointment.class)
-                    .setParameter("doctorId", doctorId)
-                    .getResultList();
-        } finally {
-            em.close();
-        }
-    }
-
-    public List<Appointment> findByDoctorIdAndDate(UUID doctorId, LocalDate date) {
-        EntityManager em = JPAUtil.getEntityManager();
-        try {
-            return em.createQuery("SELECT a FROM Appointment a WHERE a.doctor.id = :doctorId AND a.dateRdv = :date ORDER BY a.heure", Appointment.class)
-                    .setParameter("doctorId", doctorId)
-                    .setParameter("date", date)
-                    .getResultList();
-        } finally {
-            em.close();
-        }
-    }
-
-    public List<Appointment> findByStatus(AppointmentStatus status) {
-        EntityManager em = JPAUtil.getEntityManager();
-        try {
-            return em.createQuery("SELECT a FROM Appointment a WHERE a.statut = :status", Appointment.class)
-                    .setParameter("status", status)
-                    .getResultList();
-        } finally {
-            em.close();
-        }
-    }
-
     public boolean hasConflict(UUID doctorId, LocalDate date, LocalTime heure) {
         EntityManager em = JPAUtil.getEntityManager();
         try {
@@ -142,5 +108,18 @@ public class AppointmentRepository {
             em.close();
         }
     }
-}
 
+    // New: find appointments for a doctor on a specific date (excluding canceled)
+    public List<Appointment> findByDoctorIdAndDate(UUID doctorId, LocalDate date) {
+        EntityManager em = JPAUtil.getEntityManager();
+        try {
+            return em.createQuery("SELECT a FROM Appointment a WHERE a.doctor.id = :doctorId AND a.dateRdv = :date AND a.statut != :canceledStatus ORDER BY a.heure", Appointment.class)
+                    .setParameter("doctorId", doctorId)
+                    .setParameter("date", date)
+                    .setParameter("canceledStatus", AppointmentStatus.CANCELED)
+                    .getResultList();
+        } finally {
+            em.close();
+        }
+    }
+}

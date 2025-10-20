@@ -520,7 +520,6 @@
         </div>
     </div>
 
-    <!-- Delete Confirmation Modal -->
     <div id="deleteModal" class="modal">
         <div class="modal-content">
             <h2 style="margin-bottom: 15px; color: #2d3748;">⚠️ Confirmer la suppression</h2>
@@ -540,7 +539,6 @@
     </div>
 
     <script>
-        // Character counters
         document.getElementById('nom').addEventListener('input', function() {
             document.getElementById('nomCounter').textContent = this.value.length;
         });
@@ -549,7 +547,6 @@
             document.getElementById('descCounter').textContent = this.value.length;
         });
 
-        // Initialize counters on page load
         window.addEventListener('load', function() {
             const nomField = document.getElementById('nom');
             const descField = document.getElementById('description');
@@ -561,7 +558,6 @@
             }
         });
 
-        // Search/Filter function
         function filterTable() {
             const input = document.getElementById('searchInput');
             const filter = input.value.toLowerCase();
@@ -586,7 +582,6 @@
             }
         }
 
-        // Sort table function
         function sortTable(columnIndex) {
             const table = document.getElementById('departmentsTable');
             let rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;

@@ -1,6 +1,7 @@
 package com.example.demo2.repository;
 
 import com.example.demo2.entity.Availability;
+import com.example.demo2.entity.Doctor;
 import com.example.demo2.enums.AvailabilityStatus;
 import com.example.demo2.util.JPAUtil;
 import jakarta.persistence.EntityManager;
@@ -20,7 +21,48 @@ public class AvailabilityRepository {
             if (em.getTransaction().isActive()) {
                 em.getTransaction().rollback();
             }
-            throw e;
+            e.printStackTrace();
+            throw new RuntimeException("Error saving availability: " + e.getMessage(), e);
+        } finally {
+            em.close();
+        }
+    }
+
+    public void saveWithDoctorId(Availability availability, UUID doctorId) {
+        EntityManager em = JPAUtil.getEntityManager();
+        try {
+            em.getTransaction().begin();
+            Doctor doctor = em.find(Doctor.class, doctorId);
+            if (doctor == null) {
+                throw new RuntimeException("Doctor not found with ID: " + doctorId);
+            }
+
+            System.out.println("DEBUG - Found doctor: " + doctor.getId());
+
+            availability.setDoctor(doctor);
+
+            if (availability.getValide() == null) {
+                availability.setValide(true);
+            }
+            if (availability.getStatut() == null) {
+                availability.setStatut(AvailabilityStatus.AVAILABLE);
+            }
+
+            System.out.println("DEBUG - Persisting availability: " + availability.getJour() + " " + availability.getHeureDebut() + " to " + availability.getHeureFin());
+
+            // Now persist the availability
+            em.persist(availability);
+            em.flush(); // Force the SQL to execute to catch errors earlier
+            em.getTransaction().commit();
+
+            System.out.println("DEBUG - Successfully committed transaction");
+        } catch (Exception e) {
+            if (em.getTransaction().isActive()) {
+                em.getTransaction().rollback();
+            }
+            System.err.println("ERROR - Failed to save availability: " + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("Error saving availability: " + e.getMessage(), e);
         } finally {
             em.close();
         }
@@ -43,48 +85,36 @@ public class AvailabilityRepository {
     }
 
     public Optional<Availability> findById(UUID id) {
-        EntityManager em = JPAUtil.getEntityManager();
-        try {
+        try (EntityManager em = JPAUtil.getEntityManager()) {
             Availability availability = em.find(Availability.class, id);
             return Optional.ofNullable(availability);
-        } finally {
-            em.close();
         }
     }
 
     public List<Availability> findByDoctorId(UUID doctorId) {
-        EntityManager em = JPAUtil.getEntityManager();
-        try {
+        try (EntityManager em = JPAUtil.getEntityManager()) {
             return em.createQuery("SELECT a FROM Availability a WHERE a.doctor.id = :doctorId", Availability.class)
                     .setParameter("doctorId", doctorId)
                     .getResultList();
-        } finally {
-            em.close();
         }
     }
 
     public List<Availability> findByDoctorIdAndDay(UUID doctorId, String jour) {
-        EntityManager em = JPAUtil.getEntityManager();
-        try {
+        try (EntityManager em = JPAUtil.getEntityManager()) {
             return em.createQuery("SELECT a FROM Availability a WHERE a.doctor.id = :doctorId AND a.jour = :jour AND a.valide = true", Availability.class)
                     .setParameter("doctorId", doctorId)
                     .setParameter("jour", jour)
                     .getResultList();
-        } finally {
-            em.close();
         }
     }
 
     public List<Availability> findAvailableSlots(UUID doctorId, String jour) {
-        EntityManager em = JPAUtil.getEntityManager();
-        try {
+        try (EntityManager em = JPAUtil.getEntityManager()) {
             return em.createQuery("SELECT a FROM Availability a WHERE a.doctor.id = :doctorId AND a.jour = :jour AND a.statut = :statut AND a.valide = true", Availability.class)
                     .setParameter("doctorId", doctorId)
                     .setParameter("jour", jour)
                     .setParameter("statut", AvailabilityStatus.AVAILABLE)
                     .getResultList();
-        } finally {
-            em.close();
         }
     }
 
@@ -108,11 +138,10 @@ public class AvailabilityRepository {
     }
 
     public boolean hasOverlap(UUID doctorId, String jour, java.time.LocalTime heureDebut, java.time.LocalTime heureFin, UUID excludeId) {
-        EntityManager em = JPAUtil.getEntityManager();
-        try {
+        try (EntityManager em = JPAUtil.getEntityManager()) {
             String jpql = "SELECT COUNT(a) FROM Availability a WHERE a.doctor.id = :doctorId AND a.jour = :jour AND a.valide = true AND " +
-                    "((a.heureDebut < :heureFin AND a.heureFin > :heureDebut)" +
-                    (excludeId != null ? " AND a.id <> :excludeId" : ")");
+                    "(a.heureDebut < :heureFin AND a.heureFin > :heureDebut)" +
+                    (excludeId != null ? " AND a.id <> :excludeId" : "");
             var query = em.createQuery(jpql, Long.class)
                     .setParameter("doctorId", doctorId)
                     .setParameter("jour", jour)
@@ -123,8 +152,6 @@ public class AvailabilityRepository {
             }
             Long count = query.getSingleResult();
             return count > 0;
-        } finally {
-            em.close();
         }
     }
 }

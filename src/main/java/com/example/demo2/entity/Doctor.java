@@ -26,6 +26,9 @@ public class Doctor extends User {
     @OneToMany(mappedBy = "doctor", cascade = CascadeType.ALL)
     private List<Appointment> appointments = new ArrayList<>();
 
+    @OneToMany(mappedBy = "doctor", cascade = CascadeType.ALL)
+    private List<Pause> pauses = new ArrayList<>();
+
     // Constructors
     public Doctor() {
         super();
@@ -77,5 +80,12 @@ public class Doctor extends User {
     public void setAppointments(List<Appointment> appointments) {
         this.appointments = appointments;
     }
-}
 
+    public List<Pause> getPauses() {
+        return pauses;
+    }
+
+    public void setPauses(List<Pause> pauses) {
+        this.pauses = pauses;
+    }
+}
