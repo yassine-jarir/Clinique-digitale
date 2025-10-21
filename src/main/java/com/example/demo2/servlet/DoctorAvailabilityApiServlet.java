@@ -35,7 +35,19 @@ public class DoctorAvailabilityApiServlet extends HttpServlet {
 
             // Get all availabilities for this doctor
             List<Availability> availabilities = availabilityRepository.findByDoctorId(doctorId);
-            System.out.println("Found " + availabilities.size() + " availability records");
+            System.out.println("╔════════════════════════════════════════════════════════════════");
+            System.out.println("║ TOTAL AVAILABILITIES FROM DATABASE: " + availabilities.size());
+            System.out.println("╠════════════════════════════════════════════════════════════════");
+
+            // Debug: Print each availability record
+            for (int i = 0; i < availabilities.size(); i++) {
+                Availability avail = availabilities.get(i);
+                System.out.println("║ [" + (i + 1) + "] Jour: " + avail.getJour() +
+                                   " | Hours: " + avail.getHeureDebut() + "-" + avail.getHeureFin() +
+                                   " | Status: " + avail.getStatut() +
+                                   " | Valid: " + avail.getValide());
+            }
+            System.out.println("╚════════════════════════════════════════════════════════════════");
 
             // Group by day of week
             Map<String, List<Availability>> byDay = new LinkedHashMap<>();
@@ -51,6 +63,24 @@ public class DoctorAvailabilityApiServlet extends HttpServlet {
                     byDay.get(jour).add(avail);
                 }
             }
+
+            // Debug: Show grouped availabilities
+            System.out.println("╔════════════════════════════════════════════════════════════════");
+            System.out.println("║ GROUPED BY DAY OF WEEK:");
+            System.out.println("╠════════════════════════════════════════════════════════════════");
+            int totalDaysWithAvailability = 0;
+            for (Map.Entry<String, List<Availability>> entry : byDay.entrySet()) {
+                if (!entry.getValue().isEmpty()) {
+                    totalDaysWithAvailability++;
+                    System.out.println("║ " + entry.getKey() + " → " + entry.getValue().size() + " period(s)");
+                    for (Availability a : entry.getValue()) {
+                        System.out.println("║    └─ " + a.getHeureDebut() + " - " + a.getHeureFin() + " [" + a.getStatut() + "]");
+                    }
+                }
+            }
+            System.out.println("╠════════════════════════════════════════════════════════════════");
+            System.out.println("║ SUMMARY: " + totalDaysWithAvailability + " UNIQUE DAYS OF WEEK with availability");
+            System.out.println("╚════════════════════════════════════════════════════════════════");
 
             // Build JSON response
             resp.setContentType("application/json");

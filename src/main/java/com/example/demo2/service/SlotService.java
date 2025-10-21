@@ -30,6 +30,12 @@ public class SlotService {
     public List<LocalTime> generateSlots(UUID doctorId, LocalDate date, int slotMinutes) {
         String jour = getFrenchDay(date.getDayOfWeek());
         List<Availability> availabilities = availabilityRepository.findByDoctorIdAndDay(doctorId, jour);
+
+        // CRITICAL FIX: Filter to only AVAILABLE status
+        availabilities = availabilities.stream()
+            .filter(a -> a.getStatut() == com.example.demo2.enums.AvailabilityStatus.AVAILABLE)
+            .collect(java.util.stream.Collectors.toList());
+
         if (availabilities == null || availabilities.isEmpty()) return List.of();
 
         List<Pause> pauses = pauseRepository.findByDoctorIdAndDay(doctorId, jour);
@@ -104,4 +110,3 @@ public class SlotService {
         };
     }
 }
-

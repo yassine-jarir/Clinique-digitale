@@ -1,6 +1,7 @@
 package com.example.demo2.servlet;
 
 import com.example.demo2.entity.Availability;
+import com.example.demo2.enums.AvailabilityStatus;
 import com.example.demo2.repository.AvailabilityRepository;
 import com.example.demo2.repository.AppointmentRepository;
 import com.example.demo2.service.SlotService;
@@ -49,8 +50,31 @@ public class AvailabilityApiServlet extends HttpServlet {
 
             System.out.println("Day of week: " + dayOfWeek);
 
+            // IMPORTANT: Only get AVAILABLE availabilities, not all of them!
             List<Availability> availabilities = availabilityRepository.findByDoctorIdAndDay(doctorId, dayOfWeek);
             System.out.println("Found " + availabilities.size() + " availability periods");
+
+            // Debug: Print each availability with its status
+            for (Availability avail : availabilities) {
+                System.out.println("  - Availability: " + avail.getHeureDebut() + " to " + avail.getHeureFin() +
+                                   " | Status: " + avail.getStatut() + " | Valid: " + avail.getValide());
+            }
+
+            // Filter to only AVAILABLE status
+            availabilities = availabilities.stream()
+                .filter(a -> a.getStatut() == AvailabilityStatus.AVAILABLE)
+                .collect(java.util.stream.Collectors.toList());
+
+            System.out.println("After filtering by AVAILABLE status: " + availabilities.size() + " periods");
+
+            // If no AVAILABLE periods, return empty slots immediately
+            if (availabilities.isEmpty()) {
+                System.out.println("No AVAILABLE periods for this day - returning empty slots");
+                resp.setContentType("application/json");
+                resp.setCharacterEncoding("UTF-8");
+                resp.getWriter().write("{\"slots\": []}");
+                return;
+            }
 
             // Use SlotService to compute truly available slot start times (respect pauses, existing appointments, lead time)
             List<LocalTime> availableSlots = slotService.generateSlots(doctorId, date);

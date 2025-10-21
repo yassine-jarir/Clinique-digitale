@@ -720,7 +720,13 @@
 
             console.log('🎨 Rendering', days.length, 'day cards');
 
+            let renderedCount = 0;
             days.forEach((day, index) => {
+                if (!day.hasAvailability || day.isPast) {
+                    console.log('⏭️ Skipping day (no availability or past):', day.date);
+                    return;
+                }
+
                 const card = document.createElement('div');
                 card.className = 'day-card';
 
@@ -732,25 +738,17 @@
                 const month = monthNames[date.getMonth()];
                 const year = date.getFullYear();
 
-                if (day.isPast) {
-                    card.classList.add('past');
-                } else if (day.isToday) {
+                if (day.isToday) {
                     card.classList.add('today');
                 }
 
-                if (day.hasAvailability && !day.isPast) {
-                    card.classList.add('available');
-                    card.onclick = () => selectDay(day, card);
-                } else if (!day.isPast) {
-                    card.classList.add('no-availability');
-                }
+                card.classList.add('available');
+                card.onclick = () => selectDay(day, card);
 
                 let badge = '';
                 if (day.isToday) {
                     badge = '<div class="day-badge today">Aujourd\'hui</div>';
-                } else if (day.isPast) {
-                    badge = '<div class="day-badge past">Passé</div>';
-                } else if (day.hasAvailability) {
+                } else {
                     badge = '<div class="day-badge available">Disponible</div>';
                 }
 
@@ -761,9 +759,15 @@
                     badge;
 
                 container.appendChild(card);
+                renderedCount++;
             });
 
-            console.log('✅ Rendered all day cards');
+            if (renderedCount === 0) {
+                console.warn('⚠️ No available days to display');
+                container.innerHTML = '<p class="alert error">Aucun jour disponible pour ce médecin dans les 30 prochains jours.</p>';
+            } else {
+                console.log('✅ Rendered', renderedCount, 'available day cards');
+            }
         }
 
         function selectDay(day, cardElement) {

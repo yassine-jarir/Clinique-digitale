@@ -332,19 +332,61 @@
             <div class="stat-card blue">
                 <div class="icon-wrapper">📅</div>
                 <h3>Rendez-vous aujourd'hui</h3>
-                <div class="value">8</div>
+                <div class="value">${todayCount != null ? todayCount : 0}</div>
             </div>
             <div class="stat-card green">
                 <div class="icon-wrapper">✅</div>
                 <h3>Disponibilités actives</h3>
-                <div class="value">12</div>
+                <div class="value">${activeAvailabilities != null ? activeAvailabilities : 0}</div>
             </div>
             <div class="stat-card orange">
                 <div class="icon-wrapper">👥</div>
                 <h3>Total patients</h3>
-                <div class="value">156</div>
+                <div class="value">${totalPatients != null ? totalPatients : 0}</div>
             </div>
         </div>
+
+        <!-- Today's Appointments Section -->
+        <c:if test="${not empty todayAppointments}">
+            <div style="background: white; border-radius: 10px; padding: 25px; margin-bottom: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+                <h2 style="color: #1e3c72; margin-bottom: 20px; font-size: 1.5em;">📅 Rendez-vous d'aujourd'hui</h2>
+                <div style="display: grid; gap: 15px;">
+                    <c:forEach var="appointment" items="${todayAppointments}">
+                        <div style="padding: 20px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #1e3c72; display: flex; justify-content: space-between; align-items: center;">
+                            <div style="flex: 1;">
+                                <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 10px;">
+                                    <span style="font-size: 1.3em; font-weight: 600; color: #1e3c72;">⏰ ${appointment.heure}</span>
+                                    <span style="padding: 4px 12px; background: #e3f2fd; color: #1976d2; border-radius: 15px; font-size: 0.85em; font-weight: 600;">
+                                        <c:choose>
+                                            <c:when test="${appointment.type == 'CONSULTATION'}">Consultation</c:when>
+                                            <c:when test="${appointment.type == 'FOLLOW_UP'}">Suivi</c:when>
+                                            <c:when test="${appointment.type == 'EMERGENCY'}">Urgence</c:when>
+                                        </c:choose>
+                                    </span>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <span style="font-size: 1.2em;">👤</span>
+                                    <span style="font-size: 1.1em; font-weight: 600; color: #333;">
+                                        ${appointment.patient.nom} ${appointment.patient.prenom}
+                                    </span>
+                                </div>
+                                <c:if test="${not empty appointment.patient.telephone}">
+                                    <div style="display: flex; align-items: center; gap: 10px; margin-top: 8px;">
+                                        <span style="font-size: 1em;">📞</span>
+                                        <span style="color: #666; font-size: 0.95em;">${appointment.patient.telephone}</span>
+                                    </div>
+                                </c:if>
+                            </div>
+                            <div>
+                                <span style="padding: 8px 16px; background: #4CAF50; color: white; border-radius: 6px; font-size: 0.9em; font-weight: 600;">
+                                    ${appointment.statut == 'PLANNED' ? 'Planifié' : 'Confirmé'}
+                                </span>
+                            </div>
+                        </div>
+                    </c:forEach>
+                </div>
+            </div>
+        </c:if>
 
         <!-- Action Cards -->
         <div class="action-cards">

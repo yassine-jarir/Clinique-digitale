@@ -16,6 +16,9 @@ public class User {
     @Column(nullable = false, length = 100)
     private String nom;
 
+    @Column(length = 100)
+    private String prenom;
+
     @Column(nullable = false, unique = true, length = 120)
     private String email;
 
@@ -58,6 +61,14 @@ public class User {
         this.nom = nom;
     }
 
+    public String getPrenom() {
+        return prenom;
+    }
+
+    public void setPrenom(String prenom) {
+        this.prenom = prenom;
+    }
+
     public String getEmail() {
         return email;
     }
@@ -90,4 +101,3 @@ public class User {
         this.actif = actif;
     }
 }
-

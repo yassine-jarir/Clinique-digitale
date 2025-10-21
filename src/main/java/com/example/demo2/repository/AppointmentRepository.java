@@ -47,7 +47,18 @@ public class AppointmentRepository {
     public Optional<Appointment> findById(UUID id) {
         EntityManager em = JPAUtil.getEntityManager();
         try {
-            Appointment appointment = em.find(Appointment.class, id);
+            Appointment appointment = em.createQuery(
+                    "SELECT a FROM Appointment a " +
+                    "LEFT JOIN FETCH a.doctor d " +
+                    "LEFT JOIN FETCH d.specialite s " +
+                    "LEFT JOIN FETCH s.department " +
+                    "LEFT JOIN FETCH a.patient " +
+                    "WHERE a.id = :id",
+                    Appointment.class)
+                    .setParameter("id", id)
+                    .getResultStream()
+                    .findFirst()
+                    .orElse(null);
             return Optional.ofNullable(appointment);
         } finally {
             em.close();
@@ -57,7 +68,14 @@ public class AppointmentRepository {
     public List<Appointment> findByPatientId(UUID patientId) {
         EntityManager em = JPAUtil.getEntityManager();
         try {
-            return em.createQuery("SELECT a FROM Appointment a WHERE a.patient.id = :patientId ORDER BY a.dateRdv DESC, a.heure DESC", Appointment.class)
+            return em.createQuery(
+                    "SELECT a FROM Appointment a " +
+                    "LEFT JOIN FETCH a.doctor d " +
+                    "LEFT JOIN FETCH d.specialite s " +
+                    "LEFT JOIN FETCH s.department " +
+                    "WHERE a.patient.id = :patientId " +
+                    "ORDER BY a.dateRdv DESC, a.heure DESC",
+                    Appointment.class)
                     .setParameter("patientId", patientId)
                     .getResultList();
         } finally {
@@ -109,7 +127,6 @@ public class AppointmentRepository {
         }
     }
 
-    // New: find appointments for a doctor on a specific date (excluding canceled)
     public List<Appointment> findByDoctorIdAndDate(UUID doctorId, LocalDate date) {
         EntityManager em = JPAUtil.getEntityManager();
         try {
@@ -118,6 +135,59 @@ public class AppointmentRepository {
                     .setParameter("date", date)
                     .setParameter("canceledStatus", AppointmentStatus.CANCELED)
                     .getResultList();
+        } finally {
+            em.close();
+        }
+    }
+
+    public List<Appointment> findByDoctorId(UUID doctorId) {
+        EntityManager em = JPAUtil.getEntityManager();
+        try {
+            return em.createQuery(
+                    "SELECT a FROM Appointment a " +
+                    "LEFT JOIN FETCH a.patient p " +
+                    "WHERE a.doctor.id = :doctorId " +
+                    "ORDER BY a.dateRdv DESC, a.heure DESC",
+                    Appointment.class)
+                    .setParameter("doctorId", doctorId)
+                    .getResultList();
+        } finally {
+            em.close();
+        }
+    }
+
+    public List<Appointment> findTodayAppointmentsByDoctorId(UUID doctorId) {
+        EntityManager em = JPAUtil.getEntityManager();
+        try {
+            LocalDate today = LocalDate.now();
+            return em.createQuery(
+                    "SELECT a FROM Appointment a " +
+                    "LEFT JOIN FETCH a.patient p " +
+                    "WHERE a.doctor.id = :doctorId " +
+                    "AND a.dateRdv = :today " +
+                    "AND a.statut != :canceledStatus " +
+                    "ORDER BY a.heure ASC",
+                    Appointment.class)
+                    .setParameter("doctorId", doctorId)
+                    .setParameter("today", today)
+                    .setParameter("canceledStatus", AppointmentStatus.CANCELED)
+                    .getResultList();
+        } finally {
+            em.close();
+        }
+    }
+
+    public Long countByDoctorIdAndStatus(UUID doctorId, AppointmentStatus status) {
+        EntityManager em = JPAUtil.getEntityManager();
+        try {
+            return em.createQuery(
+                    "SELECT COUNT(a) FROM Appointment a " +
+                    "WHERE a.doctor.id = :doctorId " +
+                    "AND a.statut = :status",
+                    Long.class)
+                    .setParameter("doctorId", doctorId)
+                    .setParameter("status", status)
+                    .getSingleResult();
         } finally {
             em.close();
         }

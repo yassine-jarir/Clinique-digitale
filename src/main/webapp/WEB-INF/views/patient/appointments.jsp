@@ -290,7 +290,7 @@
             <c:otherwise>
                 <div class="appointments-grid">
                     <c:forEach var="appointment" items="${appointments}">
-                        <div class="appointment-card ${appointment.statut == 'CANCELED' ? 'canceled' : ''} ${appointment.statut == 'COMPLETED' ? 'completed' : ''}">
+                        <div class="appointment-card ${appointment.statut.name() == 'CANCELED' ? 'canceled' : ''} ${appointment.statut.name() == 'DONE' ? 'completed' : ''}">
                             <div class="appointment-header">
                                 <div class="appointment-date">
                                     <span>📅</span>
@@ -298,13 +298,13 @@
                                     <span style="color: #667eea;">⏰ ${appointment.heure}</span>
                                 </div>
                                 <c:choose>
-                                    <c:when test="${appointment.statut == 'PLANNED'}">
+                                    <c:when test="${appointment.statut.name() == 'PLANNED'}">
                                         <span class="status-badge planned">Planifié</span>
                                     </c:when>
-                                    <c:when test="${appointment.statut == 'COMPLETED'}">
+                                    <c:when test="${appointment.statut.name() == 'DONE'}">
                                         <span class="status-badge completed">Terminé</span>
                                     </c:when>
-                                    <c:when test="${appointment.statut == 'CANCELED'}">
+                                    <c:when test="${appointment.statut.name() == 'CANCELED'}">
                                         <span class="status-badge canceled">Annulé</span>
                                     </c:when>
                                 </c:choose>
@@ -315,11 +315,28 @@
                                     <span class="icon">👨‍⚕️</span>
                                     <div>
                                         <div class="label">Médecin</div>
-                                        <div class="value">Dr. ${appointment.doctor.nom} ${appointment.doctor.prenom}</div>
+                                        <div class="value">
+                                            Dr. ${appointment.doctor.nom}
+                                            <c:if test="${not empty appointment.doctor.prenom}"> ${appointment.doctor.prenom}</c:if>
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="detail-item">
                                     <span class="icon">🏥</span>
+                                    <div>
+                                        <div class="label">Spécialité</div>
+                                        <div class="value">
+                                            <c:choose>
+                                                <c:when test="${not empty appointment.doctor.specialite}">
+                                                    ${appointment.doctor.specialite.nom}
+                                                </c:when>
+                                                <c:otherwise>Non spécifié</c:otherwise>
+                                            </c:choose>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="icon">📋</span>
                                     <div>
                                         <div class="label">Type</div>
                                         <div class="value">
@@ -331,18 +348,18 @@
                                         </div>
                                     </div>
                                 </div>
-                                <c:if test="${not empty appointment.doctor.department}">
+                                <c:if test="${not empty appointment.doctor.specialite and not empty appointment.doctor.specialite.department}">
                                     <div class="detail-item">
                                         <span class="icon">🏢</span>
                                         <div>
-                                            <div class="label">Service</div>
-                                            <div class="value">${appointment.doctor.department.nom}</div>
+                                            <div class="label">Département</div>
+                                            <div class="value">${appointment.doctor.specialite.department.nom}</div>
                                         </div>
                                     </div>
                                 </c:if>
                             </div>
 
-                            <c:if test="${appointment.statut == 'PLANNED'}">
+                            <c:if test="${appointment.statut.name() == 'PLANNED'}">
                                 <div class="appointment-actions">
                                     <form method="post" style="display: inline;"
                                           onsubmit="return confirm('Êtes-vous sûr de vouloir annuler ce rendez-vous ?');">

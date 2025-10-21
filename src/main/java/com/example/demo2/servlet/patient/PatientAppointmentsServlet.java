@@ -2,7 +2,6 @@ package com.example.demo2.servlet.patient;
 
 import com.example.demo2.dto.UserDTO;
 import com.example.demo2.entity.Appointment;
-import com.example.demo2.entity.Patient;
 import com.example.demo2.enums.AppointmentStatus;
 import com.example.demo2.repository.AppointmentRepository;
 import com.example.demo2.repository.PatientRepository;
@@ -25,7 +24,7 @@ public class PatientAppointmentsServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         var session = req.getSession(false);
-        UserDTO userDTO = (session != null) ? (UserDTO) session.getAttribute("patient") : null;
+        UserDTO userDTO = (session != null) ? (UserDTO) session.getAttribute("user") : null;
 
         if (userDTO == null) {
             resp.sendRedirect(req.getContextPath() + "/login");
@@ -40,7 +39,7 @@ public class PatientAppointmentsServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         var session = req.getSession(false);
-        UserDTO userDTO = (session != null) ? (UserDTO) session.getAttribute("patient") : null;
+        UserDTO userDTO = (session != null) ? (UserDTO) session.getAttribute("user") : null;
 
         if (userDTO == null) {
             resp.sendRedirect(req.getContextPath() + "/login");

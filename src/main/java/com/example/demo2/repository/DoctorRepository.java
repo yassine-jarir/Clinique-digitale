@@ -3,7 +3,6 @@ package com.example.demo2.repository;
 import com.example.demo2.entity.Doctor;
 import com.example.demo2.util.JPAUtil;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.NoResultException;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -58,21 +57,6 @@ public class DoctorRepository {
         }
     }
 
-    public Optional<Doctor> findByMatricule(String matricule) {
-        EntityManager em = JPAUtil.getEntityManager();
-        try {
-            Doctor doctor = em.createQuery(
-                "SELECT d FROM Doctor d LEFT JOIN FETCH d.specialite WHERE d.matricule = :matricule",
-                Doctor.class)
-                    .setParameter("matricule", matricule)
-                    .getSingleResult();
-            return Optional.of(doctor);
-        } catch (NoResultException e) {
-            return Optional.empty();
-        } finally {
-            em.close();
-        }
-    }
 
     public List<Doctor> findAll() {
         EntityManager em = JPAUtil.getEntityManager();
@@ -84,18 +68,6 @@ public class DoctorRepository {
         }
     }
 
-    public List<Doctor> findBySpecialtyId(UUID specialtyId) {
-        EntityManager em = JPAUtil.getEntityManager();
-        try {
-            return em.createQuery(
-                "SELECT d FROM Doctor d LEFT JOIN FETCH d.specialite WHERE d.specialite.id = :specialtyId AND d.actif = true",
-                Doctor.class)
-                    .setParameter("specialtyId", specialtyId)
-                    .getResultList();
-        } finally {
-            em.close();
-        }
-    }
 
     public List<Doctor> findActiveDoctors() {
         EntityManager em = JPAUtil.getEntityManager();
